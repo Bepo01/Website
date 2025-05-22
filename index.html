@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>naya website</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script>
+        // Immediately set the theme before rendering the page
+        const savedTheme = localStorage.getItem("theme") || "light-mode";
+        document.documentElement.className = savedTheme; 
+    </script>
+
+
 
 </head>
 <body>

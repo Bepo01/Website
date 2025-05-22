@@ -49,13 +49,13 @@ function dragPopup(event, popupId) {
 document.addEventListener("DOMContentLoaded", function () {
     const bubble = document.getElementById("bubbleText");
     const sound = document.getElementById("bubbleSound");
-    let soundPlayed = false; // Track if sound has played
+    let soundPlayed = false;
 
-    
     function showBubble() {
+        bubble.classList.remove("hidden");
         bubble.classList.add("visible");
 
-        // Hide bubble after 5 seconds
+        // Hide bubble smoothly after 5 seconds
         setTimeout(() => {
             bubble.classList.remove("visible");
             bubble.classList.add("hidden");
@@ -63,24 +63,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function playSoundOnce() {
-        if (!soundPlayed) { // Ensure it plays only once
+        if (!soundPlayed) {
             sound.pause();
             sound.currentTime = 0;
 
-            // Try playing the sound with autoplay restrictions handled
             let playPromise = sound.play();
             if (playPromise !== undefined) {
-                playPromise.catch(() => console.log("Autoplay blocked. Sound will play on user interaction."));
+                playPromise.catch(() => console.log("Autoplay blocked."));
             }
 
-            soundPlayed = true; // Prevent further plays
+            soundPlayed = true;
         }
     }
 
-    // Play sound only on first mouse movement
     document.addEventListener("mousemove", playSoundOnce, { once: true });
 
-    // Trigger bubble animation immediately
     setTimeout(showBubble, 200);
 });
 
@@ -88,18 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 document.addEventListener("DOMContentLoaded", function () {
     const toggleButton = document.getElementById("themeToggle");
-    const body = document.body;
-
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-        body.classList.add(savedTheme);
-    } else {
-        body.classList.add(
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark-mode"
-                : "light-mode"
-        );
-    }
+    const body = document.documentElement;
 
     toggleButton.addEventListener("click", function () {
         if (body.classList.contains("dark-mode")) {
