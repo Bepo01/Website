@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>naya website</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <button id="themeToggle">Switch Theme</button>
+
+
+    <div class="logo-container">
+        <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" target="_blank">
+        <img src="logo.png" alt="Logo"></a>
+    </div>
+
+    <div id="bubbleText" class="bubble">
+    Yo !
+</div>
+
+<audio id="bubbleSound" src="yo.mp3" preload="auto"></audio>
+
+
+
+    <div class="button-container">
+        <button id="button1" class="button1" onclick="showPopup('popup1')">Info</button>
+        <button id="button2" class="button2" onclick="showPopup('popup2')">About</button>
+        <button id="button3" class="button3" onclick="showPopup('popup3')">Hehe</button>
+
+    </div>
+
+    <div id="popup1" class="popup">
+        <div class="popup-header" onmousedown="dragPopup(event, 'popup1')">
+            <span>Info</span>
+            
+            <button class="close-btn" onclick="closePopup('popup1')">✖</button>
+
+        </div>
+        <div class="popup-content">Hii !</div>
+    </div>
+
+    <div id="popup2" class="popup">
+        <div class="popup-header" onmousedown="dragPopup(event, 'popup2')">
+            <span>About</span>
+            <button class="close-btn" onclick="closePopup('popup2')">✖</button>
+        </div>
+        <div class="popup-content">I am Bep0</div>
+    </div>
+
+    <div id="popup3" class="popup">
+        <div class="popup-header" onmousedown="dragPopup(event, 'popup3')">
+            <span>Hehe</span>
+            <button class="close-btn" onclick="closePopup('popup3')">✖</button>
+        </div>
+        <div class="popup-content">Bla Bla Bla</div>
+    </div>
+        <script src="script.js"></script>
+</body>
+</html>
