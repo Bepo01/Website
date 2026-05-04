@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>avishkar01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #080808;
+    --white: #f0ede8;
+    --dim: #a0a0a0;
+    --faint: #1a1a1a;
+    --accent: #e8e0d0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(240,237,232,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), width 0.3s, height 0.3s, opacity 0.3s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring.hover { width: 60px; height: 60px; opacity: 0.5; }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: normal;
+  }
+  .nav-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    transition: color 0.3s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 1px;
+    background: var(--white);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* GRID LINES */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,237,232,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,237,232,0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+
+  /* GLOWING ORB */
+  .orb {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    animation: orb-pulse 8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes orb-pulse {
+    0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+    50% { transform: scale(1.1) translate(-20px, 20px); opacity: 1; }
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fade-up 0.8s 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 200px);
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    opacity: 0;
+    animation: fade-up 0.8s 0.4s forwards;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-name span {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.3);
+  }
+
+  .hero-sub {
+    margin-top: 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    opacity: 0;
+    animation: fade-up 0.8s 0.6s forwards;
+  }
+  .hero-desc {
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--dim);
+    max-width: 320px;
+  }
+  .hero-status {
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4cff91;
+    margin-right: 6px;
+    animation: blink 2s infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* QUOTE SECTION */
+  .quote-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 48px;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--faint);
+  }
+  .quote-section::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(240,237,232,0.15), transparent);
+  }
+
+  .quote-number {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--dim);
+    text-transform: uppercase;
+    position: absolute;
+    top: 48px; left: 48px;
+  }
+
+  .quote-container {
+    width: 100%;
+  }
+
+  .quote-line1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 120px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.25);
+    display: block;
+    transform: translateX(-20px);
+    opacity: 0;
+    transition: all 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .quote-line2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 120px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.25);
+    display: block;
+    transform: translateX(-20px);
+    opacity: 0;
+    transition: all 0.9s 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .quote-line3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 120px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.25);
+    display: block;
+    transform: translateX(-20px);
+    opacity: 0;
+    transition: all 0.9s 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .quote-punch {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 11vw, 160px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    display: block;
+    margin-top: 8px;
+    transform: translateX(-20px);
+    opacity: 0;
+    transition: all 0.9s 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+  }
+  .quote-punch::before {
+    content: attr(data-text);
+    position: absolute;
+    left: 0; top: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--white);
+    filter: blur(12px);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .quote-em {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: clamp(16px, 2.5vw, 28px);
+    color: var(--dim);
+    margin-top: 32px;
+    display: block;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.9s 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .quote-section.in-view .quote-line1,
+  .quote-section.in-view .quote-line2,
+  .quote-section.in-view .quote-line3,
+  .quote-section.in-view .quote-punch,
+  .quote-section.in-view .quote-em {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+
+  /* INTERESTS SECTION */
+  .interests-section {
+    padding: 120px 48px;
+    border-top: 1px solid var(--faint);
+    position: relative;
+  }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 64px;
+  }
+
+  .interests-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--faint);
+  }
+
+  .interest-item {
+    background: var(--black);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    transition: background 0.4s;
+  }
+  .interest-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: 0;
+  }
+  .interest-item:hover::before { transform: translateY(0); }
+  .interest-item:hover .interest-icon,
+  .interest-item:hover .interest-name,
+  .interest-item:hover .interest-desc { color: var(--black); }
+
+  .interest-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s;
+    line-height: 1;
+  }
+  .interest-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.05em;
+    color: var(--white);
+    display: block;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s;
+  }
+  .interest-desc {
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--dim);
+    margin-top: 12px;
+    display: block;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s;
+  }
+  .interest-item:hover .interest-desc { color: #444; }
+
+  /* MARQUEE */
+  .marquee-section {
+    padding: 60px 0;
+    border-top: 1px solid var(--faint);
+    border-bottom: 1px solid var(--faint);
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,237,232,0.15);
+    padding: 0 40px;
+    flex-shrink: 0;
+    cursor: none;
+    transition: color 0.25s ease, -webkit-text-stroke 0.25s ease, transform 0.35s cubic-bezier(0.23,1,0.32,1), letter-spacing 0.35s cubic-bezier(0.23,1,0.32,1);
+    display: inline-block;
+  }
+  .marquee-item[data-word]:hover {
+    color: var(--white);
+    -webkit-text-stroke: 1px transparent;
+    transform: translateY(-10px) scaleX(1.04);
+    letter-spacing: 0.12em;
+  }
+  .marquee-item.filled {
+    color: var(--white);
+    -webkit-text-stroke: none;
+    padding: 0 16px;
+    transition: opacity 0.25s;
+  }
+  .marquee-track.paused { animation-play-state: paused; }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ABOUT / CONTACT */
+  .bottom-section {
+    padding: 120px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    border-top: 1px solid var(--faint);
+  }
+
+  .about-block {}
+  .about-block h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    margin-bottom: 32px;
+    line-height: 1;
+  }
+  .about-block p {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--dim);
+    max-width: 400px;
+  }
+
+  .contact-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .contact-block h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    margin-bottom: 32px;
+    line-height: 1;
+  }
+
+  .contact-links {
+    list-style: none;
+  }
+  .contact-links li {
+    border-top: 1px solid var(--faint);
+    padding: 20px 0;
+  }
+  .contact-links li:last-child { border-bottom: 1px solid var(--faint); }
+  .contact-links a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .contact-links a:hover { color: var(--white); }
+  .contact-links a span { font-size: 18px; transition: transform 0.3s; }
+  .contact-links a:hover span { transform: translate(4px, -4px); }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-left {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #333;
+  }
+  .footer-right {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #333;
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    position: absolute;
+    right: 48px;
+    bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fade-up 0.8s 1s forwards;
+  }
+  .scroll-text {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dim);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--dim), transparent);
+    animation: scroll-drop 2s 1.5s ease-in-out infinite;
+  }
+  @keyframes scroll-drop {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 24px; }
+    .nav-links { gap: 24px; }
+    .hero { padding: 0 24px 60px; }
+    .hero-sub { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .quote-section { padding: 80px 24px; }
+    .quote-number { left: 24px; }
+    .interests-section { padding: 80px 24px; }
+    .interests-grid { grid-template-columns: 1fr; }
+    .bottom-section { grid-template-columns: 1fr; padding: 80px 24px; gap: 60px; }
+    footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+    .scroll-indicator { right: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">avishkar01</div>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#interests">interests</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb"></div>
+
+  <p class="hero-eyebrow">— personal space</p>
+
+  <h1 class="hero-name">
+    Avishkar
+    <span>Dhakal</span>
+  </h1>
+
+  <div class="hero-sub">
+    <p class="hero-desc">
+      Builder. Creator. Explorer.<br>
+      Somewhere between the screen and the shutter,<br>
+      between a line of code and a brushstroke.
+    </p>
+    <div class="hero-status">
+      <div><span class="status-dot"></span>Available</div>
+      <div style="margin-top:8px; font-size:9px; letter-spacing:0.15em; color:#555;">NP — 2026</div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span class="scroll-text">scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section" id="quoteSection">
+  <span class="quote-number">01 — philosophy</span>
+  <div class="quote-container">
+    <span class="quote-line1">jack of</span>
+    <span class="quote-line2">all trades,</span>
+    <span class="quote-line3">master of none —</span>
+    <span class="quote-punch" data-text="STILL BETTER THAN MASTER OF ONE.">STILL BETTER THAN MASTER OF ONE.</span>
+    <span class="quote-em">the full quote they never finish.</span>
+  </div>
+</section>
+
+<!-- INTERESTS -->
+<section class="interests-section" id="interests">
+  <p class="section-label">02 — what drives me</p>
+  <div class="interests-grid">
+    <div class="interest-item">
+      <span class="interest-icon">⌨</span>
+      <span class="interest-name">Coding</span>
+      <span class="interest-desc">Turning logic into things people touch. Clean code, deliberate architecture.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">◈</span>
+      <span class="interest-name">Gaming</span>
+      <span class="interest-desc">Not just playing — appreciating design, mechanics, and what makes it feel alive.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">▣</span>
+      <span class="interest-name">Minimal Setups</span>
+      <span class="interest-desc">Everything in its place. Nothing without purpose. The beauty of restraint.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">✎</span>
+      <span class="interest-name">Drawing</span>
+      <span class="interest-desc">Putting what's in the head onto the page. Sketches, concepts, ideas made visible.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">◉</span>
+      <span class="interest-name">Photography</span>
+      <span class="interest-desc">Freezing moments. Light, shadow, and the decisive fraction of a second.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">◧</span>
+      <span class="interest-name">Cars</span>
+      <span class="interest-desc">Engineering as sculpture. The intersection of mechanics and pure feeling.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">♩</span>
+      <span class="interest-name">Music</span>
+      <span class="interest-desc">Sound as architecture. From deep basslines to silence between notes.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">⬡</span>
+      <span class="interest-name">Tech</span>
+      <span class="interest-desc">Obsessed with what's next. Hardware, software, and ideas that shift things.</span>
+    </div>
+    <div class="interest-item">
+      <span class="interest-icon">⊙</span>
+      <span class="interest-name">Camera</span>
+      <span class="interest-desc">The glass and the sensor. Gear as craft, not just tools.</span>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section" id="marqueeSection">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="marquee-item" data-word="CREATE">CREATE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="EXPLORE">EXPLORE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="DESIGN">DESIGN</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="CODE">CODE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="CAPTURE">CAPTURE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="CREATE">CREATE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="EXPLORE">EXPLORE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="DESIGN">DESIGN</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="CODE">CODE</span>
+    <span class="marquee-item filled">·</span>
+    <span class="marquee-item" data-word="CAPTURE">CAPTURE</span>
+    <span class="marquee-item filled">·</span>
+  </div>
+</div>
+
+<!-- BOTTOM -->
+<section class="bottom-section" id="about">
+  <div class="about-block">
+    <h2>About<br>Me</h2>
+    <p>
+      I live in the overlap between disciplines —<br>
+      between a terminal window and a camera viewfinder,<br>
+      between a perfectly tuned engine and a perfectly timed shutter.<br><br>
+      I build things, break things, and document all of it.<br>
+      Avishkar. Builder. Thinker. All of the above.
+    </p>
+  </div>
+
+  <div class="contact-block" id="contact">
+    <h2>Get<br>In Touch</h2>
+    <ul class="contact-links">
+      <li><a href="mailto:hello@avishkar01.com.np">Email <span>↗</span></a></li>
+      <li><a href="https://avishkar01.com.np" target="_blank">Website <span>↗</span></a></li>
+      <li><a href="https://github.com/Bepo01" target="_blank">GitHub <span>↗</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-left">© 2026 avishkar01</span>
+  <span class="footer-right">jack of all trades</span>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 4 + 'px';
+    cursor.style.top = my - 4 + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .interest-item').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+
+  // SCROLL REVEAL - quote section
+  const quoteSection = document.getElementById('quoteSection');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('in-view');
+    });
+  }, { threshold: 0.2 });
+  observer.observe(quoteSection);
+
+  // INTEREST ITEMS staggered entrance
+  const items = document.querySelectorAll('.interest-item');
+  const itemObs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        const idx = [...items].indexOf(e.target);
+        e.target.style.opacity = '0';
+        e.target.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          e.target.style.transition = 'opacity 0.6s ease, transform 0.6s ease, background 0.4s';
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }, idx * 60);
+        itemObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  // MARQUEE HOVER INTERACTIVITY
+  const marqueeTrack = document.getElementById('marqueeTrack');
+  const marqueeSection = document.getElementById('marqueeSection');
+
+  marqueeSection.addEventListener('mouseenter', () => {
+    marqueeTrack.classList.add('paused');
+  });
+  marqueeSection.addEventListener('mouseleave', () => {
+    marqueeTrack.classList.remove('paused');
+  });
+
+  // Ripple neighbours on hover
+  document.querySelectorAll('.marquee-item[data-word]').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+      ring.classList.add('hover');
+      // dim siblings slightly
+      document.querySelectorAll('.marquee-item[data-word]').forEach(other => {
+        if (other !== item) other.style.opacity = '0.35';
+      });
+    });
+    item.addEventListener('mouseleave', () => {
+      ring.classList.remove('hover');
+      document.querySelectorAll('.marquee-item[data-word]').forEach(other => {
+        other.style.opacity = '';
+      });
+    });
+  });
+</script>
+</body>
+</html>
