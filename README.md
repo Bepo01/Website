@@ -1,3 +1,4 @@
-Welcome to my peronal website !
+Welcoome to my Personal website !
+Which contains things about me such as my interest, my projects and the tech stuff i own.
 
-I built this by myself with the help of AI assistance...
+Happy to have you guys here.
